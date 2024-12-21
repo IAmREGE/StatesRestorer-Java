@@ -5,6 +5,10 @@ import java.util.Map;
 
 import rege.rege.statesrestorer.base.LeveledData;
 
+/**
+ * @author REGE
+ * @since 0.0.1-a.1
+ */
 public class StringMapData extends HashMap<String, String>
 implements LeveledData<String, String> {
     public static StringMapData fromByteArr(byte... arr) {
@@ -122,5 +126,69 @@ implements LeveledData<String, String> {
             }
         }
         return RES;
+    }
+
+    public StringMapData with(String key, String val) {
+        this.put(key, val);
+        return this;
+    }
+
+    public int tryRead(byte[] arr, Object... args) {
+        if (arr.length < 4) {
+            return -1;
+        }
+        final int LEN = (((arr[0] < 0) ? 256 + arr[0] : arr[0]) << 24) |
+                        (((arr[1] < 0) ? 256 + arr[1] : arr[1]) << 16) |
+                        (((arr[2] < 0) ? 256 + arr[2] : arr[2]) << 8) |
+                        ((arr[3] < 0) ? 256 + arr[3] : arr[3]);
+        try {
+            int index = 4;
+            for (int i = 0; i < LEN; i++) {
+                int len =
+                (((arr[index] < 0) ? 256 + arr[index] : arr[index]) << 24) |
+                (((arr[index + 1] < 0) ? 256 + arr[index + 1] : arr[index + 1])
+                 << 16) | (((arr[index + 2] < 0) ? 256 + arr[index + 2] :
+                            arr[index + 2]) << 8) |
+                ((arr[index + 3] < 0) ? 256 + arr[index + 3] : arr[index + 3]);
+                index += 4;
+                String key;
+                if (len > 0) {
+                    StringBuilder sb = new StringBuilder(len);
+                    for (int j = 0; j < len; j++) {
+                        sb.append((char)((arr[index] << 8) | arr[index + 1]));
+                        index += 2;
+                    }
+                    key = sb.toString();
+                } else {
+                    key = "";
+                }
+                len =
+                (((arr[index] < 0) ? 256 + arr[index] : arr[index]) << 24) |
+                (((arr[index + 1] < 0) ? 256 + arr[index + 1] : arr[index + 1])
+                 << 16) | (((arr[index + 2] < 0) ? 256 + arr[index + 2] :
+                            arr[index + 2]) << 8) |
+                ((arr[index + 3] < 0) ? 256 + arr[index + 3] : arr[index + 3]);
+                index += 4;
+                String val;
+                if (len > 0) {
+                    StringBuilder sb = new StringBuilder(len);
+                    for (int j = 0; j < len; j++) {
+                        sb.append((char)((arr[index] << 8) | arr[index + 1]));
+                        index += 2;
+                    }
+                    val = sb.toString();
+                } else {
+                    val = "";
+                }
+                this.put(key, val);
+            }
+            return index;
+        } catch (ArrayIndexOutOfBoundsException e) {}
+        return -1;
+    }
+
+    @Override
+    public String put(String s, String s2) {
+        return (s2 == null) ? this.remove(s) : super.put(s, s2);
     }
 }

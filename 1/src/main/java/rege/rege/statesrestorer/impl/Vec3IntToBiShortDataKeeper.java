@@ -7,10 +7,16 @@ import rege.rege.statesrestorer.base.DataKeeper;
 import rege.rege.statesrestorer.util.BiShortData;
 import rege.rege.statesrestorer.util.Vec3Int;
 
+/**
+ * @author REGE
+ * @since 0.0.1-a.1
+ */
 public class Vec3IntToBiShortDataKeeper extends HashMap<Vec3Int, BiShortData>
 implements DataKeeper<Vec3Int, BiShortData> {
     public BiShortData claim(Vec3Int source) {
-        return this.put(source, new BiShortData(null, null));
+        BiShortData data = new BiShortData(null, null);
+        this.put(source, data);
+        return data;
     }
 
     public BiShortData unclaim(Vec3Int source) {
@@ -27,16 +33,18 @@ implements DataKeeper<Vec3Int, BiShortData> {
         for (Entry<Vec3Int, BiShortData> i : this.entrySet()) {
             Vec3Int vec = i.getKey();
             BiShortData data = i.getValue();
-            if (RES.containsKey(vec) && !data.isEmpty()) {
-                BiShortData restored = RES.get(vec);
-                if (data.main != null) {
-                    restored.main = data.main;
+            if (!data.isEmpty()) {
+                if (RES.containsKey(vec)) {
+                    BiShortData restored = RES.get(vec);
+                    if (data.main != null) {
+                        restored.main = data.main;
+                    }
+                    if (data.addi != null) {
+                        restored.addi = data.addi;
+                    }
+                } else {
+                    RES.put(vec, new BiShortData(data.main, data.addi));
                 }
-                if (data.addi != null) {
-                    restored.addi = data.addi;
-                }
-            } else {
-                RES.put(vec, new BiShortData(data.main, data.addi));
             }
         }
         return RES;

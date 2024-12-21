@@ -2,6 +2,10 @@ package rege.rege.statesrestorer.util;
 
 import rege.rege.statesrestorer.base.Serializable;
 
+/**
+ * @author REGE
+ * @since 0.0.1-a.1
+ */
 public class Vec3Int implements Serializable {
     public static Vec3Int fromByteArr(byte... arr) {
         if (arr.length < 12) {
@@ -58,5 +62,14 @@ public class Vec3Int implements Serializable {
         result = 31 * result + this.y;
         result = 31 * result + this.z;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + this.x + ", " + this.y + ", " + this.z + ')';
+    }
+
+    public int tryRead(byte[] arr, Object... args) {
+        return -2;
     }
 }

@@ -2,6 +2,10 @@ package rege.rege.statesrestorer.util;
 
 import rege.rege.statesrestorer.base.LeveledData;
 
+/**
+ * @author REGE
+ * @since 0.0.1-a.1
+ */
 public class BiShortData implements LeveledData<Boolean, Short> {
     public static BiShortData fromByteArr(byte... arr) {
         if (arr.length == 0) {
@@ -29,8 +33,8 @@ public class BiShortData implements LeveledData<Boolean, Short> {
     public Short addi;
 
     public BiShortData(Short main, Short addi) {
-        this.main = main;
-        this.addi = addi;
+        this.withMain(main);
+        this.withAddi(addi);
     }
 
     public Short getData(Boolean isAddi) {
@@ -85,5 +89,56 @@ public class BiShortData implements LeveledData<Boolean, Short> {
                ((this.addi != null) ? ":" + this.addi : ":") :
                ((this.addi == null) ? this.main.toString() :
                 this.main + ":" + this.addi);
+    }
+
+    public BiShortData withMain(Short main) {
+        this.main = main;
+        return this;
+    }
+
+    public BiShortData withAddi(Short addi) {
+        this.addi = addi;
+        return this;
+    }
+
+    public int tryRead(byte[] arr, Object... args) {
+        if (arr.length == 0) {
+            return -1;
+        }
+        switch (arr[0] & 3) {
+            case 0: {
+                this.withMain(null).withAddi(null);
+                return 1;
+            }
+            case 1: {
+                if (arr.length < 3) {
+                    return -1;
+                }
+                this.withMain(null).withAddi((short)(
+                    (((arr[1] < 0) ? 256 + arr[1] : arr[1]) << 8) |
+                    ((arr[2] < 0) ? 256 + arr[2] : arr[2])
+                ));
+                return 3;
+            }
+            case 2: {
+                if (arr.length < 3) {
+                    return -1;
+                }
+                this.withMain((short)(
+                    (((arr[1] < 0) ? 256 + arr[1] : arr[1]) << 8) |
+                    ((arr[2] < 0) ? 256 + arr[2] : arr[2])
+                )).withAddi(null);
+                return 3;
+            }
+        }
+        if (arr.length < 5) {
+            return -1;
+        }
+        this.withMain((short)(
+            (((arr[1] < 0) ? 256 + arr[1] : arr[1]) << 8) |
+            ((arr[2] < 0) ? 256 + arr[2] : arr[2])
+        )).withAddi((short)((((arr[3] < 0) ? 256 + arr[3] : arr[3]) << 8) |
+                    ((arr[4] < 0) ? 256 + arr[4] : arr[4])));
+        return 5;
     }
 }
